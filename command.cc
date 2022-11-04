@@ -163,7 +163,7 @@ Command::execute()
 			if(returnStatus==0){//no errors
 
 			}else{//error happened
-				
+				printf("Error happened while waiting for child to terminate!");
 			}
 		}
 	}
