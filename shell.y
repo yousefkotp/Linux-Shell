@@ -45,10 +45,10 @@ command: simple_command
         ;
 
 simple_command:
-	EXIT {
+	EXIT NEWLINE{
 		printf("\n\t\t\t Good Bye! :)\n\n");
 		exit(0);
-	}	
+	}
 	| command_and_args iomodifier_opt BACKGROUND NEWLINE {
 		printf("   Yacc: insert background = TRUE\n");
 	 	Command::_currentCommand._background=1;

@@ -43,7 +43,7 @@
 "|"		{
 		return PIPE;
 		}
-"exit"		{
+"exit"	{
 		return EXIT;
 		}
 
