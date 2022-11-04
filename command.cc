@@ -190,33 +190,7 @@ void Command::execute()
 			continue;
 		}
 
-		if (i == 0)
-		{
-			if (_inputFile)
-			{
-				dup2(ip, 0);
-				close(ip);
-			}
-			else
-				dup2(defaultIn, 0);
-		}
-		else
-		{
-			dup2(fd[0], 0);
-			close(fd[0]);
-		}
-		if (i == _numberOfSimpleCommands - 1)
-		{
-			if (_outFile)
-				dup2(op, 1);
-			else
-				dup2(defaultOut, 1);
-		}
-		else
-		{
-			dup2(fd[1], 1);
-			close(fd[1]);
-		}
+		
 		int pid = fork();
 		if (!pid)
 		{ // child
