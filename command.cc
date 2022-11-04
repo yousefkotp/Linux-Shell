@@ -148,7 +148,7 @@ Command::execute()
 
 	int defaultIn = dup(0);
 	int defaultOut= dup(1);
-
+	
 	int ip,op,err;
 	if(_errFile){
 		err= open(_errFile,O_WRONLY | O_CREAT,0777);
@@ -164,24 +164,28 @@ Command::execute()
 			op = open(_outFile,O_WRONLY | O_APPEND,0777);
 	}
 
-
-	for(int i=0;i<_currentCommand._numberOfSimpleCommands;i++){
-
+	int fd[2];
+	pipe(fd);
+	for(int i=0;i<_numberOfSimpleCommands;i++){
+		
 		if(i==0){
 			if(_inputFile){
 				dup2(ip,0);
 				close(ip);
-			}
+			}else
+				dup2(defaultIn,0);
 		}else{
-
+			dup2(fd[0],0);
+			close(fd[0]);
 		}
 		if(i== _numberOfSimpleCommands-1){
-			if(_outFile){
+			if(_outFile)
 				dup2(op,1);
-				//close(op);
-			}
+			else
+				dup2(defaultOut,1);
 		}else{
-
+			dup2(fd[1],1);
+			close(fd[1]);
 		}
 		int pid = fork();
 		if(!pid){//child
@@ -190,14 +194,9 @@ Command::execute()
 			dup2(defaultIn,0);
 			dup2(defaultOut,1);
 			if(!_background)
-				 waitpid(pid,0,0);
+				waitpid(pid,0,0);
 		}
 	}
-	// Add execution here
-	// For every simple command fork a new process
-	// Setup i/o redirection
-	// and call exec
-
 	// Clear to prepare for next command
 	clear();
 	

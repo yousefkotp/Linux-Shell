@@ -113,8 +113,15 @@ iomodifier_opt:
 	| READ WORD GREAT WORD {
 		printf("   Yacc: insert output \"%s\"\n", $4);
 		Command::_currentCommand._outFile = $4;
-		printf("   Yacc: insert output \"%s\"\n", $2);
+		printf("   Yacc: insert input \"%s\"\n", $2);
 		Command::_currentCommand._inputFile = $2;
+	}
+	| READ WORD APPEND WORD {
+		printf("   Yacc: insert append output \"%s\"\n", $4);
+		Command::_currentCommand._outFile = $4;
+		printf("   Yacc: insert input \"%s\"\n", $2);
+		Command::_currentCommand._inputFile = $2;
+		Command::_currentCommand._append = 1;
 	}
 	| ERR WORD {
 		printf("   Yacc: insert error \"%s\"\n", $2);
