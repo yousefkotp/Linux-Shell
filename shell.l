@@ -43,6 +43,9 @@
 "|"		{
 		return PIPE;
 		}
+"exit"		{
+		return EXIT;
+		}
 
 
 [^ \t\n][^ \t\n]*  {

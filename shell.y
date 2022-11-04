@@ -13,7 +13,7 @@
 
 %token	<string_val> WORD
 
-%token 	NOTOKEN GREAT NEWLINE APPEND READ PIPE BACKGROUND
+%token 	NOTOKEN GREAT NEWLINE APPEND READ PIPE BACKGROUND EXIT
 
 %union	{
 		char   *string_val;
@@ -44,8 +44,12 @@ commands:
 command: simple_command
         ;
 
-simple_command:	
-	command_and_args iomodifier_opt BACKGROUND NEWLINE {
+simple_command:
+	EXIT {
+		printf("\n\t\t\t Good Bye! :)\n\n");
+		exit(0);
+	}	
+	| command_and_args iomodifier_opt BACKGROUND NEWLINE {
 		printf("   Yacc: insert background = TRUE\n");
 	 	Command::_currentCommand._background=1;
 		printf("   Yacc: Execute command\n");

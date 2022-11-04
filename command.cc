@@ -19,6 +19,8 @@
 
 #include "command.h"
 
+void catchSIGINT(int);
+
 SimpleCommand::SimpleCommand()
 {
 	// Creat available space for 5 arguments initially
@@ -180,6 +182,7 @@ Command::execute()
 void
 Command::prompt()
 {
+	signal(SIGINT, catchSIGINT);
 	printf("myshell>");
 	fflush(stdout);
 }
@@ -188,6 +191,14 @@ Command Command::_currentCommand;
 SimpleCommand * Command::_currentSimpleCommand;
 
 int yyparse(void);
+
+void catchSIGINT(int sig_num)
+{
+	signal(SIGINT, catchSIGINT);
+	printf("\r\033[0J"); // Erase myshell> ^C
+	Command::_currentCommand.prompt();
+	fflush(stdout);
+}
 
 int 
 main()
