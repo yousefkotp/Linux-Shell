@@ -187,48 +187,47 @@ void Command::execute()
 		{
 			if (changeCurrentDirectory() == -1)
 				printf("Error occurred. Make sure the directory you entered is valid\n");
+			continue;
+		}
+
+		if (i == 0)
+		{
+			if (_inputFile)
+			{
+				dup2(ip, 0);
+				close(ip);
+			}
+			else
+				dup2(defaultIn, 0);
 		}
 		else
 		{
-			if (i == 0)
-			{
-				if (_inputFile)
-				{
-					dup2(ip, 0);
-					close(ip);
-				}
-				else
-					dup2(defaultIn, 0);
-			}
+			dup2(fd[0], 0);
+			close(fd[0]);
+		}
+		if (i == _numberOfSimpleCommands - 1)
+		{
+			if (_outFile)
+				dup2(op, 1);
 			else
-			{
-				dup2(fd[0], 0);
-				close(fd[0]);
-			}
-			if (i == _numberOfSimpleCommands - 1)
-			{
-				if (_outFile)
-					dup2(op, 1);
-				else
-					dup2(defaultOut, 1);
-			}
-			else
-			{
-				dup2(fd[1], 1);
-				close(fd[1]);
-			}
-			int pid = fork();
-			if (!pid)
-			{ // child
-				execvp(_simpleCommands[i]->_arguments[0], &_simpleCommands[i]->_arguments[0]);
-			}
-			else
-			{ // parent
-				dup2(defaultIn, 0);
 				dup2(defaultOut, 1);
-				if (!_background)
-					waitpid(pid, 0, 0);
-			}
+		}
+		else
+		{
+			dup2(fd[1], 1);
+			close(fd[1]);
+		}
+		int pid = fork();
+		if (!pid)
+		{ // child
+			execvp(_simpleCommands[i]->_arguments[0], &_simpleCommands[i]->_arguments[0]);
+		}
+		else
+		{ // parent
+			dup2(defaultIn, 0);
+			dup2(defaultOut, 1);
+			if (!_background)
+				waitpid(pid, 0, 0);
 		}
 	}
 	// Clear to prepare for next command
