@@ -16,7 +16,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
-#include <bits/stdc++.h>
+#include <fcntl.h>
 
 #include "command.h"
 
@@ -113,6 +113,7 @@ void Command::clear()
 
 	_numberOfSimpleCommands = 0;
 	_outFile = 0;
+	_append = 0;
 	_inputFile = 0;
 	_errFile = 0;
 	_background = 0;
@@ -157,26 +158,64 @@ void Command::execute()
 	// Print contents of Command data structure
 	print();
 
-	for (int i = 0; i < _currentCommand._numberOfSimpleCommands; i++)
+	int defaultIn = dup(0);
+	int defaultOut = dup(1);
+
+	int ip, op, err;
+	if (_errFile)
 	{
-		char *executingCommand = _simpleCommands[i]->_arguments[0];
-		if (strcmp(executingCommand, "cd") == 0)
+		err = open(_errFile, O_WRONLY | O_CREAT, 0777);
+		dup2(err, 2);
+	}
+	if (_inputFile)
+	{
+		ip = open(_inputFile, O_RDONLY, 0777);
+	}
+	if (_outFile)
+	{
+		if (!_append)
+			op = open(_outFile, O_WRONLY | O_CREAT, 0777);
+		else
+			op = open(_outFile, O_WRONLY | O_APPEND, 0777);
+	}
+
+	int fd[2];
+	pipe(fd);
+	for (int i = 0; i < _numberOfSimpleCommands; i++)
+	{
+		if (strcmp(_simpleCommands[i]->_arguments[0], "cd") == 0)
 		{
 			if (changeCurrentDirectory() == -1)
-			{
 				printf("Error occurred. Make sure the directory you entered is valid\n");
-			}
 		}
 		else
 		{
 			if (i == 0)
 			{
-			}
-			else if (i == _numberOfSimpleCommands - 1)
-			{
+				if (_inputFile)
+				{
+					dup2(ip, 0);
+					close(ip);
+				}
+				else
+					dup2(defaultIn, 0);
 			}
 			else
 			{
+				dup2(fd[0], 0);
+				close(fd[0]);
+			}
+			if (i == _numberOfSimpleCommands - 1)
+			{
+				if (_outFile)
+					dup2(op, 1);
+				else
+					dup2(defaultOut, 1);
+			}
+			else
+			{
+				dup2(fd[1], 1);
+				close(fd[1]);
 			}
 			int pid = fork();
 			if (!pid)
@@ -185,16 +224,13 @@ void Command::execute()
 			}
 			else
 			{ // parent
+				dup2(defaultIn, 0);
+				dup2(defaultOut, 1);
 				if (!_background)
 					waitpid(pid, 0, 0);
 			}
 		}
 	}
-	// Add execution here
-	// For every simple command fork a new process
-	// Setup i/o redirection
-	// and call exec
-
 	// Clear to prepare for next command
 	clear();
 
@@ -261,7 +297,6 @@ void add_dir_to_path(char *directory)
 int main()
 {
 	chdir(home_dir);
-	printf("%s\n", home_dir);
 	Command::_currentCommand.prompt();
 	yyparse();
 	return 0;
