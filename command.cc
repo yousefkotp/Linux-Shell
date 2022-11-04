@@ -146,11 +146,13 @@ Command::execute()
 	// Print contents of Command data structure
 	print();
 
+	int defaultIn = dup(0);
+	int defaultOut= dup(1);
 
 	int ip,op,err;
 	if(_errFile){
-		err= open(_errFile,O_WRONLY,0777);
-		dup2(_errFile,2);
+		err= open(_errFile,O_WRONLY | O_CREAT,0777);
+		dup2(err,2);
 	}
 	if(_inputFile){
 		ip = open(_inputFile,O_RDONLY,0777);
@@ -185,6 +187,8 @@ Command::execute()
 		if(!pid){//child
 			execvp(_simpleCommands[i]->_arguments[0], &_simpleCommands[i]->_arguments[0]);
 		}else{//parent
+			dup2(defaultIn,0);
+			dup2(defaultOut,1);
 			if(!_background)
 				 waitpid(pid,0,0);
 		}

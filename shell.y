@@ -13,7 +13,7 @@
 
 %token	<string_val> WORD
 
-%token 	NOTOKEN GREAT NEWLINE APPEND READ PIPE BACKGROUND EXIT
+%token 	NOTOKEN GREAT NEWLINE APPEND READ PIPE BACKGROUND EXIT ERR
 
 %union	{
 		char   *string_val;
@@ -109,6 +109,16 @@ iomodifier_opt:
 	| READ WORD {
 		printf("   Yacc: insert input \"%s\"\n", $2);
 		Command::_currentCommand._inputFile = $2;
+	}
+	| READ WORD GREAT WORD {
+		printf("   Yacc: insert output \"%s\"\n", $4);
+		Command::_currentCommand._outFile = $4;
+		printf("   Yacc: insert output \"%s\"\n", $2);
+		Command::_currentCommand._inputFile = $2;
+	}
+	| ERR WORD {
+		printf("   Yacc: insert error \"%s\"\n", $2);
+		Command::_currentCommand._errFile = $2;
 	}
 	|
 	;

@@ -23,7 +23,10 @@
 [ \t] 	{
 		/* Discard spaces and tabs */
      	}
-		
+
+"&>>"	{
+		return ERR;
+	}
 ">>"	{
 		return APPEND;
 		}	
