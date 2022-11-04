@@ -148,16 +148,19 @@ Command::execute()
 
 		if(i==0){
 
-		}else if(i==_currentCommand._numberOfSimpleCommands-1){
+		}else if(i== _numberOfSimpleCommands-1){
 
 		}else{
 
 		}
 		int pid = fork();
 		if(!pid){//child
-			int statusCode = execvp(_currentCommand._simpleCommands[i]->_arguments[0], &_currentCommand._simpleCommands[i]->_arguments[0]);
+			execvp(_simpleCommands[i]->_arguments[0], &_simpleCommands[i]->_arguments[0]);
 		}else{//parent
-			waitpid(pid,&returnStatus,0);
+
+			int returnStatus;
+			if(!_background)
+				 waitpid(pid,&returnStatus,0);
 		}
 	}
 	// Add execution here
