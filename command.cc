@@ -100,6 +100,7 @@ Command:: clear()
 
 	_numberOfSimpleCommands = 0;
 	_outFile = 0;
+	_append=0;
 	_inputFile = 0;
 	_errFile = 0;
 	_background = 0;

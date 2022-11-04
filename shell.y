@@ -104,6 +104,7 @@ iomodifier_opt:
 	| APPEND WORD {
 		printf("   Yacc: insert append output \"%s\"\n", $2);
 		Command::_currentCommand._outFile = $2;
+		Command::_currentCommand._append = 1;
 	}
 	| READ WORD {
 		printf("   Yacc: insert input \"%s\"\n", $2);
