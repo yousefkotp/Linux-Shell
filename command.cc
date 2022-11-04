@@ -170,14 +170,15 @@ Command::execute()
 				dup2(ip,0);
 				close(ip);
 			}
+		}else{
+
 		}
 		if(i== _numberOfSimpleCommands-1){
 			if(_outFile){
 				dup2(op,1);
-				close(op);
+				//close(op);
 			}
-		}
-		if(i>0 && i<_numberOfSimpleCommands-1){
+		}else{
 
 		}
 		int pid = fork();
