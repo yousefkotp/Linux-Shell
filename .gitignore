@@ -1,0 +1,10 @@
+
+.vscode/settings.json
+.vscode/tasks.json
+command.o
+lex.yy.c
+lex.yy.o
+shell
+y.tab.c
+y.tab.h
+y.tab.o

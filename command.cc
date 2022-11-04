@@ -142,6 +142,31 @@ Command::execute()
 	// Print contents of Command data structure
 	print();
 
+
+
+	for(int i=0;i<_currentCommand._numberOfSimpleCommands;i++){
+
+		if(i==0){
+
+		}else if(i==_currentCommand._numberOfSimpleCommands-1){
+
+		}else{
+
+		}
+		int pid = fork();
+		if(!pid){//child
+			execvp(_currentCommand._simpleCommands[i]->_arguments[0], &_currentCommand._simpleCommands[i]->_arguments[1]);
+		}else{//parent
+
+			int returnStatus = waitpid(pid,&returnStatus,0);
+
+			if(returnStatus==0){//no errors
+
+			}else{//error happened
+				
+			}
+		}
+	}
 	// Add execution here
 	// For every simple command fork a new process
 	// Setup i/o redirection
