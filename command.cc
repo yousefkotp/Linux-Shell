@@ -155,16 +155,9 @@ Command::execute()
 		}
 		int pid = fork();
 		if(!pid){//child
-			execvp(_currentCommand._simpleCommands[i]->_arguments[0], &_currentCommand._simpleCommands[i]->_arguments[1]);
+			int statusCode = execvp(_currentCommand._simpleCommands[i]->_arguments[0], &_currentCommand._simpleCommands[i]->_arguments[0]);
 		}else{//parent
-
-			int returnStatus = waitpid(pid,&returnStatus,0);
-
-			if(returnStatus==0){//no errors
-
-			}else{//error happened
-				printf("Error happened while waiting for child to terminate!");
-			}
+			waitpid(pid,&returnStatus,0);
 		}
 	}
 	// Add execution here
