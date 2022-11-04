@@ -158,6 +158,7 @@ void Command::execute()
 	// Print contents of Command data structure
 	print();
 
+
 	int defaultIn = dup(0);
 	int defaultOut = dup(1);
 
@@ -179,29 +180,44 @@ void Command::execute()
 			op = open(_outFile, O_WRONLY | O_APPEND, 0777);
 	}
 
-	int fd[2];
-	pipe(fd);
+	int fd[_numberOfSimpleCommands][2];
 	for (int i = 0; i < _numberOfSimpleCommands; i++)
 	{
+		pipe(fd[i]);
 		if (strcmp(_simpleCommands[i]->_arguments[0], "cd") == 0)
 		{
 			if (changeCurrentDirectory() == -1)
 				printf("Error occurred. Make sure the directory you entered is valid\n");
-			continue;
 		}
 
-		
-		int pid = fork();
-		if (!pid)
-		{ // child
-			execvp(_simpleCommands[i]->_arguments[0], &_simpleCommands[i]->_arguments[0]);
+		if(i==0){
+			if(_inputFile){
+				dup2(ip,0);
+				close(ip);
+			}else
+				dup2(defaultIn,0);
+		}else{
+			dup2(fd[i-1][0],0);
+			close(fd[i-1][0]);
 		}
-		else
-		{ // parent
-			dup2(defaultIn, 0);
-			dup2(defaultOut, 1);
-			if (!_background)
-				waitpid(pid, 0, 0);
+		if(i== _numberOfSimpleCommands-1){
+			if(_outFile)
+				dup2(op,1);
+			else
+				dup2(defaultOut,1);
+		}else{
+			dup2(fd[i][1],1);
+			close(fd[i][1]);
+		}
+		int pid = fork();
+		if(!pid){//child
+			execvp(_simpleCommands[i]->_arguments[0], &_simpleCommands[i]->_arguments[0]);
+		}else{//parent
+			dup2(defaultIn,0);
+			dup2(defaultOut,1);
+			if(!_background)
+				waitpid(pid,0,0);
+			
 		}
 	}
 	// Clear to prepare for next command
