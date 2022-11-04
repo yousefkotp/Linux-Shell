@@ -16,6 +16,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #include "command.h"
 
@@ -146,14 +147,37 @@ Command::execute()
 	print();
 
 
+	int ip,op,err;
+	if(_errFile){
+		err= open(_errFile,O_WRONLY,0777);
+		dup2(_errFile,2);
+	}
+	if(_inputFile){
+		ip = open(_inputFile,O_RDONLY,0777);
+	}
+	if(_outFile){
+		if(!_append)
+			op = open(_outFile,O_WRONLY | O_CREAT,0777);
+		else 
+			op = open(_outFile,O_WRONLY | O_APPEND,0777);
+	}
+
 
 	for(int i=0;i<_currentCommand._numberOfSimpleCommands;i++){
 
 		if(i==0){
-
-		}else if(i== _numberOfSimpleCommands-1){
-
-		}else{
+			if(_inputFile){
+				dup2(ip,0);
+				close(ip);
+			}
+		}
+		if(i== _numberOfSimpleCommands-1){
+			if(_outFile){
+				dup2(op,1);
+				close(op);
+			}
+		}
+		if(i>0 && i<_numberOfSimpleCommands-1){
 
 		}
 		int pid = fork();
