@@ -159,10 +159,8 @@ Command::execute()
 		if(!pid){//child
 			execvp(_simpleCommands[i]->_arguments[0], &_simpleCommands[i]->_arguments[0]);
 		}else{//parent
-
-			int returnStatus;
 			if(!_background)
-				 waitpid(pid,&returnStatus,0);
+				 waitpid(pid, 0 , 0);
 		}
 	}
 	// Add execution here
