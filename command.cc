@@ -167,7 +167,6 @@ Command::execute()
 	int fd[2];
 	pipe(fd);
 	for(int i=0;i<_numberOfSimpleCommands;i++){
-		
 		if(i==0){
 			if(_inputFile){
 				dup2(ip,0);
@@ -195,6 +194,7 @@ Command::execute()
 			dup2(defaultOut,1);
 			if(!_background)
 				waitpid(pid,0,0);
+			
 		}
 	}
 	// Clear to prepare for next command
