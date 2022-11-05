@@ -17,18 +17,31 @@
 #include <string.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <ctime>
 
 #include "command.h"
+
+/*	Constants	*/
+char LOG_FILE_NAME[] = "/child-log.txt";
 
 /*	Global Variables	*/
 char *home_dir = getenv("HOME");
 char *path_to_current_directory[128];
 int next_dir = 0;
+FILE *fp;
 
-/*	Prototypes	*/
-void catchSIGINT(int);
-int changeCurrentDirectory(void);
-void add_dir_to_path(char *);
+
+
+void openLogFile() {
+	char path_to_log[64];
+	strcpy(path_to_log, getenv("HOME"));
+	strcat(path_to_log, LOG_FILE_NAME);
+	fp = fopen(path_to_log, "a");
+}
+
+void closeLogFile() {
+	fclose(fp);
+}
 
 SimpleCommand::SimpleCommand()
 {
@@ -155,10 +168,6 @@ void Command::execute()
 		return;
 	}
 
-	// Print contents of Command data structure
-	print();
-
-
 	int defaultIn = dup(0);
 	int defaultOut = dup(1);
 
@@ -186,38 +195,54 @@ void Command::execute()
 		pipe(fd[i]);
 		if (strcmp(_simpleCommands[i]->_arguments[0], "cd") == 0)
 		{
+			printf("\n");
 			if (changeCurrentDirectory() == -1)
-				printf("Error occurred. Make sure the directory you entered is valid\n");
+				printf("\033[31mError occurred. Make sure the directory you entered is valid\033[0m\n");
+			continue;
 		}
 
-		if(i==0){
-			if(_inputFile){
-				dup2(ip,0);
+		// Print contents of Command data structure
+		print();
+
+		if (i == 0)
+		{
+			if (_inputFile)
+			{
+				dup2(ip, 0);
 				close(ip);
-			}else
-				dup2(defaultIn,0);
-		}else{
-			dup2(fd[i-1][0],0);
-			close(fd[i-1][0]);
-		}
-		if(i== _numberOfSimpleCommands-1){
-			if(_outFile)
-				dup2(op,1);
+			}
 			else
-				dup2(defaultOut,1);
-		}else{
-			dup2(fd[i][1],1);
+				dup2(defaultIn, 0);
+		}
+		else
+		{
+			dup2(fd[i - 1][0], 0);
+			close(fd[i - 1][0]);
+		}
+		if (i == _numberOfSimpleCommands - 1)
+		{
+			if (_outFile)
+				dup2(op, 1);
+			else
+				dup2(defaultOut, 1);
+		}
+		else
+		{
+			dup2(fd[i][1], 1);
 			close(fd[i][1]);
 		}
 		int pid = fork();
-		if(!pid){//child
+		if (!pid)
+		{ // child
 			execvp(_simpleCommands[i]->_arguments[0], &_simpleCommands[i]->_arguments[0]);
-		}else{//parent
-			dup2(defaultIn,0);
-			dup2(defaultOut,1);
-			if(!_background)
-				waitpid(pid,0,0);
-			
+		}
+		else
+		{ // parent
+			signal(SIGCHLD, handleSIGCHLD);
+			dup2(defaultIn, 0);
+			dup2(defaultOut, 1);
+			if (!_background)
+				waitpid(pid, 0, 0);
 		}
 	}
 	// Clear to prepare for next command
@@ -253,6 +278,37 @@ void catchSIGINT(int sig_num)
 	Command::_currentCommand.prompt();
 	fflush(stdout);
 }
+
+void handleSIGCHLD(int sig_num)
+{
+	pid_t pid;
+	int status;
+	wait(&status);
+	openLogFile();
+	flockfile(fp);
+	time_t TIMER = time(NULL);
+	tm *ptm = localtime((&TIMER));
+	char currentTime[32];
+	strcpy(currentTime, asctime(ptm));
+	removeNewline(currentTime, 32);
+	fprintf(fp, "%s: Child Terminated\n", currentTime);
+	funlockfile(fp);
+	fclose(fp);
+	signal(SIGCHLD, handleSIGCHLD);
+}
+
+void removeNewline(char *str, int size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		if (str[i] == '\n')
+		{
+			str[i] = '\0';
+			return;
+		}
+	}
+}
+
 
 /// Executes the "cd" command
 /// @returns 0 on success, -1 on error

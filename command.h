@@ -4,6 +4,15 @@
 
 #include <bits/stdc++.h>
 
+/*	Prototypes	*/
+void catchSIGINT(int);
+void handleSIGCHLD(int);
+int changeCurrentDirectory(void);
+void add_dir_to_path(char *);
+void removeNewline(char*, int);
+void openLogFile();
+void closeLogFile();
+
 // Command Data Structure
 struct SimpleCommand
 {
