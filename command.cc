@@ -281,7 +281,6 @@ void catchSIGINT(int sig_num)
 
 void handleSIGCHLD(int sig_num)
 {
-	pid_t pid;
 	int status;
 	wait(&status);
 	openLogFile();
