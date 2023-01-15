@@ -9,7 +9,7 @@ An implementation of a Linux shell in C using the Linux system calls fork(), exe
   - [Yacc Parser](#yacc-parser)
   - [Psuedo Code](#psuedo-code)
   - [Contributors](#contributors)
-  
+
 ## Features
 - The shell supports the following features:
     * Running commands in the foreground and background
@@ -57,27 +57,30 @@ while (True) {
 ```
 - The psudo code for executing a list of piped commands is as follows:
 ```c
-fork a child process
-if (child process) {
-    if (input redirection) {
-        redirect input
-    }
-    if (output redirection) {
-        redirect output
-    }
-    if (piping) {
-        pipe commands
-    }
-    execute command
-}
-else {
-    if (background process) {
-        continue
-    }
-    else {
-        wait for child process to finish
-    }
-}
+save the defaultin and defaultout
+open the the input redirection inFile ONLY if needed
+create the output redirection outFile ONLY if needed ; take care of Append or Trunc
+loop through the commands:
+    initialize pipe using pipe() syscall
+    if first command: 
+        redirect input to inFile if needed using dup2 otherwise to defaultin 
+        close inFile if opened
+    else if not first command: 
+        redirect input to pipe[0] using dup2
+        close pipe[0]
+    if last command: 
+        redirect output to outFile if needed using dup2 otherwise to defaultout
+    else if not last command:
+        redirect output to pipe[1] using dup2
+        close pipe[1]
+
+    pid = fork()
+    if pid == 0:
+        execvp
+    elseif pid > 0: 
+        restore defaultin and defaultout (( it is essential to do this for the next iteration to work ))
+        if not backgroud:
+            waitpid
 ```
 
 
