@@ -81,7 +81,7 @@ loop through the commands:
     if pid == 0:
         execvp
     elseif pid > 0: 
-        restore defaultin and defaultout (( it is essential to do this for the next iteration to work ))
+        restore defaultin and defaultout //it is essential to do this for the next iteration to work
         if not backgroud:
             waitpid
 ```
