@@ -8,6 +8,7 @@ An implementation of a Linux shell in C using the Linux system calls fork(), exe
   - [Lexical Analysis](#lexical-analysis)
   - [Yacc Parser](#yacc-parser)
   - [Psuedo Code](#psuedo-code)
+  - [Remarks](#remarks)
   - [Contributors](#contributors)
 
 ## Features
