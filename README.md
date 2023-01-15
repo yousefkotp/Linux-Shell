@@ -60,14 +60,17 @@ while (True) {
 save the defaultin and defaultout
 open the the input redirection inFile ONLY if needed
 create the output redirection outFile ONLY if needed ; take care of Append or Trunc
+
 loop through the commands:
     initialize pipe using pipe() syscall
+
     if first command: 
         redirect input to inFile if needed using dup2 otherwise to defaultin 
         close inFile if opened
     else if not first command: 
         redirect input to pipe[0] using dup2
         close pipe[0]
+
     if last command: 
         redirect output to outFile if needed using dup2 otherwise to defaultout
     else if not last command:
