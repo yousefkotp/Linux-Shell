@@ -85,7 +85,9 @@ loop through the commands:
         if not backgroud:
             waitpid
 ```
-
+## Remarks
+- The program can be run on any Linux distribution.
+- The program is tested on [Ubuntu 22.04.1 LTS](https://releases.ubuntu.com/22.04/).
 
 ## Contributors
 
