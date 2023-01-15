@@ -1,5 +1,5 @@
 # Linux-Shell
-An implementation of a Linux shell in C using the Linux system calls fork(), execvp(), wait(), and exit(). The input is tokenized using the flex tool and parsed using the yacc parser.
+An implementation of a Linux shell using the Linux system calls fork(), execvp(), wait(), and exit(). The input is tokenized using the flex tool and parsed using the yacc parser.
 ## Table of Contents
 - [Linux-Shell](#linux-shell)
   - [Table of Contents](#table-of-contents)
